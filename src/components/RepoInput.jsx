@@ -1,92 +1,58 @@
-<div style={{ marginTop: 24 }}>
-  {/* Input wrapper with glow on focus */}
-  <div style={{
-    position: "relative",
-    display: "flex",
-    alignItems: "center",
-  }}>
-    {/* GitHub icon */}
-    <span style={{
-      position: "absolute", left: 14,
-      fontSize: 16, opacity: 0.5,
-    }}>⌥</span>
+import { useState } from "react";
 
-    <input
-      type="text"
-      placeholder="https://github.com/user/repo"
-      value={repoUrl}
-      onChange={(e) => setRepoUrl(e.target.value)}
-      disabled={loading}
-      style={{
-        width: "100%",
-        padding: "13px 14px 13px 38px",
-        background: "rgba(255,255,255,0.05)",
-        border: "1px solid rgba(255,255,255,0.1)",
-        borderRadius: 12,
-        color: "#fff",
-        fontSize: 13,
-        outline: "none",
-        boxSizing: "border-box",
-        transition: "border 0.2s, box-shadow 0.2s",
-        boxShadow: "0 0 0 0px rgba(99,102,241,0)",
-      }}
-      onFocus={e => {
-        e.target.style.border = "1px solid rgba(99,102,241,0.7)";
-        e.target.style.boxShadow = "0 0 0 3px rgba(99,102,241,0.15)";
-      }}
-      onBlur={e => {
-        e.target.style.border = "1px solid rgba(255,255,255,0.1)";
-        e.target.style.boxShadow = "0 0 0 0px rgba(99,102,241,0)";
-      }}
-    />
-  </div>
+export default function RepoInput() {
+  const [repo, setRepo] = useState("");
+  const [team, setTeam] = useState("");
+  const [leader, setLeader] = useState("");
 
-  {/* Run Agent Button */}
-  <button
-    onClick={handleRunAgent}
-    disabled={loading}
-    style={{
-      marginTop: 16,
-      width: "100%",
-      padding: "13px",
-      borderRadius: 12,
-      border: "none",
-      background: loading
-        ? "rgba(255,255,255,0.07)"
-        : "linear-gradient(135deg, #6366f1, #34d399)",
-      color: loading ? "rgba(255,255,255,0.3)" : "#fff",
-      fontWeight: 700,
-      fontSize: 14,
-      letterSpacing: "0.5px",
-      cursor: loading ? "not-allowed" : "pointer",
-      position: "relative",
-      overflow: "hidden",
-      transition: "opacity 0.2s, transform 0.1s",
-    }}
-    onMouseEnter={e => { if (!loading) e.target.style.opacity = 0.88; }}
-    onMouseLeave={e => { e.target.style.opacity = 1; }}
-    onMouseDown={e => { if (!loading) e.target.style.transform = "scale(0.98)"; }}
-    onMouseUp={e => { e.target.style.transform = "scale(1)"; }}
-  >
-    {loading ? (
-      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-        <span style={{
-          width: 14, height: 14,
-          border: "2px solid rgba(255,255,255,0.2)",
-          borderTop: "2px solid #fff",
-          borderRadius: "50%",
-          display: "inline-block",
-          animation: "spin 0.8s linear infinite",
-        }} />
-        Agent Running...
-      </span>
-    ) : (
-      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
-        ▶ Run Agent
-      </span>
-    )}
-  </button>
+  const runAgent = () => {
+    const data = {
+      repo,
+      team,
+      leader,
+      branch: `${team}_${leader}_AI_Fix`.toUpperCase(),
+      failures: 3,
+      time: "3m 12s",
+      score: {
+        base: 100,
+        bonus: 10,
+        penalty: 2,
+      },
+      fixes: [
+        {
+          file: "src/utils.py",
+          type: "LINTING",
+          line: 15,
+          commit: "[AI-AGENT] Remove unused import",
+        },
+        {
+          file: "src/validator.py",
+          type: "SYNTAX",
+          line: 8,
+          commit: "[AI-AGENT] Add missing colon",
+        },
+        {
+          file: "src/main.py",
+          type: "LOGIC",
+          line: 21,
+          commit: "[AI-AGENT] Fix condition logic",
+        },
+      ],
+    };
 
-  {/* Spinner keyframe */}
-  <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-</div>
+    localStorage.setItem("runData", JSON.stringify(data));
+    window.location.reload();
+  };
+
+  return (
+    <div className="card">
+      <h1>AI DevOps Agent</h1>
+
+      <input placeholder="Repository URL" value={repo} onChange={e => setRepo(e.target.value)} />
+      <input placeholder="Team Name" value={team} onChange={e => setTeam(e.target.value)} />
+      <input placeholder="Leader Name" value={leader} onChange={e => setLeader(e.target.value)} />
+
+      <button className="run-btn" onClick={runAgent}>Run Agent</button>
+    </div>
+  );
+}
